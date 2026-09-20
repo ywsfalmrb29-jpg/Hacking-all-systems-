@@ -960,6 +960,915 @@ window.showToast = showToast;
 window.GAME_STATE = GAME_STATE;
 window.updateUI = updateUI;
 window.saveState = saveState;
+/* ============================================
+   الجزء 3: المهام الهجومية (Offense Missions)
+   ============================================ */
+
+const OFFENSE_MISSIONS = [
+  {
+    id: 'off_1',
+    icon: '📱',
+    name: 'اختراق هاتف Android',
+    desc: 'احصل على صلاحيات الروت لهاتف Android',
+    difficulty: 'easy',
+    points: 100,
+    brief: 'الهدف: اختراق هاتف Android والحصول على صلاحيات الروت.',
+    hint: 'استخدم ADB ثم Metasploit — لازم تتصل بالجهاز الأول',
+    expectedCommands: ['adb', 'connect', 'shell', 'msfconsole', 'exploit/android'],
+    successDetails: {
+      '📱 الجهاز': 'Samsung Galaxy S21',
+      '🔓 الروت': 'مفعّل بنجاح',
+      '📸 الكاميرا': 'متاحة الآن',
+      '📁 الملفات': 'يمكن الوصول'
+    }
+  },
+  {
+    id: 'off_2',
+    icon: '🌐',
+    name: 'اختراق شبكة واي فاي',
+    desc: 'اكسر تشفير شبكة WPA2',
+    difficulty: 'easy',
+    points: 150,
+    brief: 'الهدف: كسر تشفير شبكة WiFi وحصل على كلمة المرور.',
+    hint: 'استخدم aircrack-ng — ابدأ بـ airmon-ng لتفعيل وضع المراقبة',
+    expectedCommands: ['airmon-ng', 'airodump-ng', 'aireplay-ng', 'aircrack-ng', 'wlan'],
+    successDetails: {
+      '📶 الشبكة': 'Home_WiFi_5G',
+      '🔐 كلمة المرور': 'Ahmed@2024!',
+      '📊 قوة الإشارة': 'ممتازة',
+      '🌐 متصل الآن': 'نعم'
+    }
+  },
+  {
+    id: 'off_3',
+    icon: '📷',
+    name: 'اختراق حساب انستجرام',
+    desc: 'اختراق حساب Instgram بكلمة مرور',
+    difficulty: 'medium',
+    points: 200,
+    brief: 'الهدف: اختراق حساب Instagram باستخدام Brute Force.',
+    hint: 'استخدم hydra مع قائمة كلمات مرور',
+    expectedCommands: ['hydra', 'instagram', 'brute', 'password', 'wordlist'],
+    successDetails: {
+      '📷 الحساب': '@target_user',
+      '🔑 كلمة المرور': 'test123456',
+      '📧 الإيميل': 't***@gmail.com',
+      '📸 الصور': 'متاحة'
+    }
+  },
+  {
+    id: 'off_4',
+    icon: '💻',
+    name: 'اختراق كمبيوتر Windows',
+    desc: 'استغل ثغرة SMB في Windows',
+    difficulty: 'medium',
+    points: 250,
+    brief: 'الهدف: استغلال ثغرة EternalBlue في Windows 7.',
+    hint: 'استخدم Metasploit مع ثغرة ms17-010',
+    expectedCommands: ['nmap', 'msfconsole', 'ms17', 'eternalblue', 'smb'],
+    successDetails: {
+      '💻 النظام': 'Windows 7 SP1',
+      '🔓 الصلاحيات': 'SYSTEM',
+      '📸 الشاشة': 'مسجلة',
+      '📁 الملفات': 'كلها متاحة'
+    }
+  },
+  {
+    id: 'off_5',
+    icon: '🌍',
+    name: 'اختراق موقع ويب',
+    desc: 'استغل ثغرة SQL Injection',
+    difficulty: 'medium',
+    points: 300,
+    brief: 'الهدف: استخراج قاعدة بيانات موقع عبر SQL Injection.',
+    hint: 'استخدم sqlmap مع رابط الموقع',
+    expectedCommands: ['sqlmap', 'injection', 'database', 'dump', 'tables'],
+    successDetails: {
+      '🌍 الموقع': 'target-shop.com',
+      '🗄️ القاعدة': 'MySQL 5.7',
+      '👥 المستخدمين': '2,847 مستخدم',
+      '💳 بطاقات': 'تم استخراج 156'
+    }
+  },
+  {
+    id: 'off_6',
+    icon: '🖥️',
+    name: 'اختراق سيرفر Linux',
+    desc: 'دخول سيرفر Linux عن بُعد',
+    difficulty: 'hard',
+    points: 400,
+    brief: 'الهدف: الدخول لسيرفر Linux عبر SSH Bruteforce.',
+    hint: 'استخدم hydra مع SSH — اسم المستخدم عادة root أو admin',
+    expectedCommands: ['hydra', 'ssh', 'root', 'login', 'port 22'],
+    successDetails: {
+      '🖥️ السيرفر': 'Ubuntu 22.04',
+      '👤 المستخدم': 'root',
+      '🔑 كلمة المرور': 'admin123',
+      '🎯 Uptime': '247 يوم',
+      '🌐 المواقع': '3 مواقع مستضافة'
+    }
+  },
+  {
+    id: 'off_7',
+    icon: '📹',
+    name: 'اختراق كاميرا مراقبة',
+    desc: 'دخول كاميرا IP غير محمية',
+    difficulty: 'hard',
+    points: 450,
+    brief: 'الهدف: الدخول لكاميرا مراقبة IP والحصول على البث المباشر.',
+    hint: 'استخدم nmap لاكتشاف المنافذ + shodan للبحث',
+    expectedCommands: ['nmap', 'shodan', 'camera', 'rtsp', 'port 554'],
+    successDetails: {
+      '📹 الكاميرا': 'Hikvision DS-2CD',
+      '📍 الموقع': 'مخزن - القاهرة',
+      '📸 دقة': '1080p HD',
+      '🎥 البث': 'مباشر الآن',
+      '🔓 الدخول': 'بدون كلمة مرور'
+    }
+  },
+  {
+    id: 'off_8',
+    icon: '🚗',
+    name: 'اختراق سيارة ذكية',
+    desc: 'التحكم في سيارة متصلة بالإنترنت',
+    difficulty: 'hard',
+    points: 500,
+    brief: 'الهدف: السيطرة على سيارة Tesla متصلة.',
+    hint: 'استخدم CAN Bus + Bluetooth Exploit',
+    expectedCommands: ['can', 'bluetooth', 'tesla', 'obd', 'exploit'],
+    successDetails: {
+      '🚗 السيارة': 'Tesla Model 3',
+      '🔓 الباب': 'مفتوح',
+      '🏁 المحرك': 'يمكن تشغيله',
+      '📍 GPS': 'متتبع',
+      '⚠️ تحذير': 'مشروع تعليمي فقط!'
+    }
+  },
+  {
+    id: 'off_9',
+    icon: '🏦',
+    name: 'اختراق بنك',
+    desc: 'الدخول لنظام بنكي وهمي',
+    difficulty: 'expert',
+    points: 800,
+    brief: 'الهدف: الدخول لنظام بنك وهمي للاختبار.',
+    hint: 'استخدم سلسلة ثغرات — ابدأ بـ Reconnaissance',
+    expectedCommands: ['recon', 'exploit', 'privilege', 'escalation', 'bank'],
+    successDetails: {
+      '🏦 البنك': 'Test Bank',
+      '💰 الحسابات': '12,847 حساب',
+      '💵 الرصيد': '$ 2.4M',
+      '🔐 كلمات المرور': 'مشفرة AES-256',
+      '⚠️ تحذير': 'بيانات وهمية 100%'
+    }
+  },
+  {
+    id: 'off_10',
+    icon: '👑',
+    name: 'اختراق نظام حكومي',
+    desc: 'تحدي أسطوري — نظام حماية متقدم',
+    difficulty: 'expert',
+    points: 1000,
+    brief: 'الهدف النهائي: الدخول لنظام حكومي وهمي.',
+    hint: 'استخدم كل مهاراتك — إنها أصعب مهمة!',
+    expectedCommands: ['zero-day', 'exploit', 'root', 'government', 'payload'],
+    successDetails: {
+      '👑 الهدف': 'Government System',
+      '🔓 الوصول': 'ROOT',
+      '📁 الملفات': 'سري',
+      '🎯 النتيجة': 'تم الاختراق بامتياز',
+      '🏆 لقب': 'Elite Hacker',
+      '⚠️ تحذير': 'محاكاة فقط — لا شيء حقيقي'
+    }
+  }
+];
+
+/* ===== دالة عرض المهام الهجومية ===== */
+function renderOffenseMissions() {
+  const container = document.getElementById('offenseMissions');
+  if (!container) return;
+  
+  container.innerHTML = '';
+  
+  OFFENSE_MISSIONS.forEach((mission, index) => {
+    const isCompleted = GAME_STATE.completedMissions.includes(mission.id);
+    const isLocked = index > 0 && !GAME_STATE.completedMissions.includes(OFFENSE_MISSIONS[index - 1].id);
+    
+    const card = document.createElement('div');
+    card.className = 'mission-card offense';
+    if (isCompleted) card.classList.add('completed');
+    if (isLocked) card.classList.add('locked');
+    
+    const difficultyText = {
+      'easy': '🟢 سهل',
+      'medium': '🟡 متوسط',
+      'hard': '🔴 صعب',
+      'expert': '🟣 خبير'
+    }[mission.difficulty];
+    
+    card.innerHTML = `
+      <div class="mission-header">
+        <div class="mission-icon">${mission.icon}</div>
+        <div class="mission-info">
+          <div class="mission-name">${mission.name}</div>
+          <div class="mission-desc">${mission.desc}</div>
+        </div>
+      </div>
+      <div class="mission-footer">
+        <div class="mission-points">+${mission.points} نقطة</div>
+        <div class="mission-difficulty diff-${mission.difficulty}">${difficultyText}</div>
+      </div>
+    `;
+    
+    if (!isLocked) {
+      card.addEventListener('click', () => openMissionModal(mission));
+    } else {
+      card.addEventListener('click', () => {
+        showToast('🔒 أكمل المهمة السابقة أولاً', 'error');
+      });
+    }
+    
+    container.appendChild(card);
+  });
+}
+
+/* ===== دالة فتح نافذة المهمة ===== */
+function openMissionModal(mission) {
+  // إنشاء النافذة
+  let modal = document.getElementById('missionModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'missionModal';
+    modal.className = 'mission-modal';
+    document.body.appendChild(modal);
+    
+    // إضافة CSS للنافذة
+    const style = document.createElement('style');
+    style.textContent = `
+      .mission-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.9);
+        backdrop-filter: blur(10px);
+        z-index: 1000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        animation: fadeIn 0.3s;
+      }
+      .mission-modal.active { display: flex; }
+      @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+      
+      .modal-content {
+        background: linear-gradient(135deg, #0a0a15, #12121f);
+        border: 2px solid #00ff41;
+        border-radius: 20px;
+        max-width: 800px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 0 60px rgba(0,255,65,0.4);
+        animation: modalSlide 0.4s ease;
+      }
+      @keyframes modalSlide {
+        from{transform:scale(0.9) translateY(30px);opacity:0}
+        to{transform:scale(1) translateY(0);opacity:1}
+      }
+      
+      .modal-header {
+        padding: 25px;
+        border-bottom: 1px solid rgba(0,255,65,0.2);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(0,255,65,0.05);
+      }
+      
+      .modal-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 1.2rem;
+        font-weight: 900;
+        color: #00ff41;
+        font-family: 'Share Tech Mono', monospace;
+      }
+      
+      .close-btn {
+        background: transparent;
+        border: 2px solid #ff0044;
+        color: #ff0044;
+        width: 35px;height: 35px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 1.2rem;
+        font-weight: 700;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .close-btn:hover {
+        background: #ff0044;
+        color: #fff;
+        transform: rotate(90deg);
+      }
+      
+      .modal-body { padding: 25px; }
+      
+      .mission-brief {
+        background: rgba(0,255,65,0.05);
+        border-right: 4px solid #00ff41;
+        padding: 18px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+      }
+      .mission-brief h4 {
+        color: #00ff41;
+        font-family: 'Share Tech Mono', monospace;
+        margin-bottom: 10px;
+        font-size: 1rem;
+      }
+      .mission-brief p {
+        color: #9a9ab0;
+        font-size: 0.95rem;
+        line-height: 1.7;
+      }
+      
+      .hint-box {
+        background: rgba(212,175,55,0.08);
+        border: 1px solid rgba(212,175,55,0.3);
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+      }
+      .hint-icon { font-size: 1.3rem; flex-shrink: 0; }
+      .hint-text { color: #f4d47c; font-size: 0.9rem; line-height: 1.6; }
+      
+      .terminal {
+        background: #000;
+        border: 1px solid #00ff41;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 20px;
+        box-shadow: 0 0 30px rgba(0,255,65,0.2);
+      }
+      
+      .terminal-header {
+        background: #0a0a0a;
+        padding: 10px 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 1px solid #00ff41;
+      }
+      
+      .term-dot { width: 12px; height: 12px; border-radius: 50%; }
+      .term-dot.red { background: #ff5f56; }
+      .term-dot.yellow { background: #ffbd2e; }
+      .term-dot.green { background: #27c93f; }
+      
+      .terminal-title {
+        margin: 0 auto;
+        color: #00ff41;
+        font-family: 'Share Tech Mono', monospace;
+        font-size: 0.85rem;
+      }
+      
+      .terminal-body {
+        padding: 20px;
+        min-height: 150px;
+        max-height: 250px;
+        overflow-y: auto;
+        font-family: 'Share Tech Mono', monospace;
+        font-size: 0.9rem;
+        color: #00ff41;
+        line-height: 1.6;
+      }
+      
+      .term-line { margin-bottom: 8px; animation: termLine 0.3s; }
+      @keyframes termLine {
+        from{opacity:0;transform:translateX(-10px)}
+        to{opacity:1;transform:translateX(0)}
+      }
+      
+      .term-error { color: #ff0044; }
+      .term-success { color: #00ff41; }
+      .term-warning { color: #ffaa00; }
+      .term-info { color: #c084fc; }
+      
+      .command-input-area {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+      }
+      
+      .command-input {
+        flex: 1;
+        min-width: 200px;
+        padding: 15px 18px;
+        background: #000;
+        border: 2px solid #00ff41;
+        border-radius: 10px;
+        color: #00ff41;
+        font-family: 'Share Tech Mono', monospace;
+        font-size: 0.95rem;
+        outline: none;
+        transition: all 0.3s;
+      }
+      .command-input:focus {
+        box-shadow: 0 0 20px rgba(0,255,65,0.4);
+      }
+      .command-input::placeholder { color: rgba(0,255,65,0.4); }
+      
+      .run-btn {
+        padding: 15px 30px;
+        background: linear-gradient(135deg, #00ff41, #00aa2a);
+        color: #000;
+        border: none;
+        border-radius: 10px;
+        font-weight: 900;
+        cursor: pointer;
+        font-family: 'Cairo', sans-serif;
+        font-size: 1rem;
+        transition: all 0.3s;
+        box-shadow: 0 0 20px rgba(0,255,65,0.3);
+      }
+      .run-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 40px rgba(0,255,65,0.6);
+      }
+      
+      @media (max-width: 768px) {
+        .modal-header { padding: 18px; }
+        .modal-title { font-size: 1rem; }
+        .modal-body { padding: 18px; }
+        .command-input-area { flex-direction: column; }
+        .run-btn { width: 100%; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+  
+  modal.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>${mission.icon}</span>
+          <span>${mission.name}</span>
+        </div>
+        <button class="close-btn" onclick="closeMissionModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="mission-brief">
+          <h4>🎯 المهمة:</h4>
+          <p>${mission.brief}</p>
+        </div>
+        
+        <div class="hint-box">
+          <span class="hint-icon">💡</span>
+          <div class="hint-text">${mission.hint}</div>
+        </div>
+        
+        <div class="terminal">
+          <div class="terminal-header">
+            <span class="term-dot red"></span>
+            <span class="term-dot yellow"></span>
+            <span class="term-dot green"></span>
+            <span class="terminal-title">edman@hacker:~$</span>
+          </div>
+          <div class="terminal-body" id="terminalBody">
+            <div class="term-line term-info">> اختر الأوامر المناسبة لتنفيذ المهمة</div>
+            <div class="term-line term-warning">> اكتب كل أمر في سطر منفصل</div>
+          </div>
+        </div>
+        
+        <div class="command-input-area">
+          <input type="text" class="command-input" id="commandInput" placeholder="اكتب الأمر هنا..." autocomplete="off">
+          <button class="run-btn" onclick="runCommand()">▶️ تنفيذ</button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  modal.classList.add('active');
+  
+  // تركيز على الإدخال
+  setTimeout(() => {
+    const input = document.getElementById('commandInput');
+    if (input) {
+      input.focus();
+      input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') runCommand();
+      });
+    }
+  }, 300);
+  
+  // تخزين المهمة الحالية
+  window.currentMission = mission;
+  window.userCommands = [];
+}
+
+/* ===== دالة إغلاق النافذة ===== */
+function closeMissionModal() {
+  const modal = document.getElementById('missionModal');
+  if (modal) modal.classList.remove('active');
+  window.currentMission = null;
+  window.userCommands = [];
+}
+
+/* ===== دالة تنفيذ الأمر ===== */
+function runCommand() {
+  const input = document.getElementById('commandInput');
+  const terminalBody = document.getElementById('terminalBody');
+  
+  if (!input || !terminalBody) return;
+  
+  const command = input.value.trim();
+  if (!command) return;
+  
+  // إضافة الأمر للـ terminal
+  const cmdLine = document.createElement('div');
+  cmdLine.className = 'term-line term-success';
+  cmdLine.textContent = `> ${command}`;
+  terminalBody.appendChild(cmdLine);
+  
+  // حفظ الأمر
+  window.userCommands.push(command.toLowerCase());
+  
+  // محاكاة تنفيذ
+  setTimeout(() => {
+    const output = document.createElement('div');
+    output.className = 'term-line term-info';
+    output.textContent = '⏳ جاري التنفيذ...';
+    terminalBody.appendChild(output);
+    terminalBody.scrollTop = terminalBody.scrollHeight;
+    
+    setTimeout(() => {
+      output.remove();
+      checkMissionProgress();
+    }, 800);
+  }, 200);
+  
+  // تفريغ الإدخال
+  input.value = '';
+  terminalBody.scrollTop = terminalBody.scrollHeight;
+}
+
+/* ===== دالة فحص تقدم المهمة ===== */
+function checkMissionProgress() {
+  const mission = window.currentMission;
+  if (!mission) return;
+  
+  const userCmds = window.userCommands.join(' ').toLowerCase();
+  const expectedCmds = mission.expectedCommands;
+  
+  // عد الأوامر المطابقة
+  let matched = 0;
+  expectedCmds.forEach(exp => {
+    if (userCmds.includes(exp.toLowerCase())) matched++;
+  });
+  
+  // لو matched 60% أو أكثر → نجاح
+  const successRate = matched / expectedCmds.length;
+  
+  const terminalBody = document.getElementById('terminalBody');
+  const terminal = terminalBody.parentElement;
+  
+  if (successRate >= 0.6) {
+    // نجاح
+    terminalBody.innerHTML += `<div class="term-line term-success">✅ تم اكتشاف ${matched}/${expectedCmds.length} أوامر صحيحة</div>`;
+    terminalBody.innerHTML += `<div class="term-line term-success">🔥 جاري تنفيذ الاختراق...</div>`;
+    terminalBody.scrollTop = terminalBody.scrollHeight;
+    
+    setTimeout(() => {
+      closeMissionModal();
+      showMatrixSuccess(mission);
+    }, 1500);
+    
+  } else if (window.userCommands.length >= 3) {
+    // فشل
+    terminalBody.innerHTML += `<div class="term-line term-error">❌ الأوامر غير كافية (${matched}/${expectedCmds.length})</div>`;
+    terminalBody.innerHTML += `<div class="term-line term-warning">💡 راجع التلميح</div>`;
+    terminalBody.scrollTop = terminalBody.scrollHeight;
+    
+    setTimeout(() => {
+      closeMissionModal();
+      showMissionFail(mission, matched, expectedCmds.length);
+    }, 1500);
+  }
+}
+
+/* ===== دالة عرض النجاح ===== */
+function showMatrixSuccess(mission) {
+  // إضافة نقاط
+  if (!GAME_STATE.completedMissions.includes(mission.id)) {
+    GAME_STATE.completedMissions.push(mission.id);
+    GAME_STATE.points += mission.points;
+    saveState();
+    updateUI();
+  }
+  
+  // إنشاء شاشة النجاح
+  let success = document.getElementById('matrixSuccess');
+  if (!success) {
+    success = document.createElement('div');
+    success.id = 'matrixSuccess';
+    success.className = 'matrix-success';
+    document.body.appendChild(success);
+    
+    const style = document.createElement('style');
+    style.textContent = `
+      .matrix-success {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        z-index: 2000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        font-family: 'Share Tech Mono', monospace;
+        overflow: hidden;
+      }
+      .matrix-success.active { display: flex; }
+      
+      #successCanvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.6;
+      }
+      
+      .matrix-message {
+        position: relative;
+        z-index: 10;
+        text-align: center;
+        color: #00ff41;
+        padding: 20px;
+        animation: matrixMsg 1s ease;
+        max-width: 600px;
+      }
+      @keyframes matrixMsg {
+        from{opacity:0;transform:scale(0.5)}
+        to{opacity:1;transform:scale(1)}
+      }
+      
+      .matrix-message .big-icon {
+        font-size: 5rem;
+        margin-bottom: 20px;
+        filter: drop-shadow(0 0 30px #00ff41);
+        animation: pulseIcon 1s infinite;
+      }
+      @keyframes pulseIcon {
+        0%,100%{transform:scale(1)}
+        50%{transform:scale(1.1)}
+      }
+      
+      .matrix-message h2 {
+        font-size: clamp(1.5rem,5vw,2.5rem);
+        margin-bottom: 15px;
+        text-shadow:
+          0 0 10px #00ff41,
+          0 0 20px #00ff41,
+          0 0 40px #00ff41;
+        font-weight: 900;
+      }
+      
+      .matrix-message .loot {
+        font-size: 1.2rem;
+        margin: 20px 0;
+        color: #d4af37;
+        text-shadow: 0 0 20px #d4af37;
+      }
+      
+      .hack-details {
+        background: rgba(0,255,65,0.1);
+        border: 1px solid #00ff41;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px auto;
+        text-align: right;
+        font-size: 0.9rem;
+        line-height: 2;
+      }
+      
+      .continue-btn {
+        padding: 15px 40px;
+        background: linear-gradient(135deg,#00ff41,#00aa2a);
+        color: #000;
+        border: none;
+        border-radius: 50px;
+        font-weight: 900;
+        cursor: pointer;
+        font-family: 'Cairo', sans-serif;
+        font-size: 1.1rem;
+        margin-top: 20px;
+        transition: all 0.3s;
+        box-shadow: 0 0 30px rgba(0,255,65,0.5);
+      }
+      .continue-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 60px rgba(0,255,65,0.8);
+      }
+    `;
+    document.head.appendChild(style);
+  }
+  
+  let detailsHtml = '';
+  if (mission.successDetails) {
+    for (const [key, value] of Object.entries(mission.successDetails)) {
+      detailsHtml += `<div>${key}: <span style="color:#00ff41">${value}</span></div>`;
+    }
+  }
+  
+  success.innerHTML = `
+    <canvas id="successCanvas"></canvas>
+    <div class="matrix-message">
+      <div class="big-icon">✅</div>
+      <h2>تم الاختراق بنجاح!</h2>
+      <div class="loot">🎁 +${mission.points} نقطة</div>
+      <div class="hack-details">${detailsHtml}</div>
+      <button class="continue-btn" onclick="closeSuccess()">➡️ المهمة التالية</button>
+    </div>
+  `;
+  
+  success.classList.add('active');
+  
+  // تشغيل Matrix على الشاشة
+  startSuccessMatrix();
+}
+
+/* ===== دالة Matrix للنجاح ===== */
+function startSuccessMatrix() {
+  const canvas = document.getElementById('successCanvas');
+  if (!canvas) return;
+  
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  
+  const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789ABCDEF';
+  const fontSize = 16;
+  const columns = Math.floor(canvas.width / fontSize);
+  const drops = Array(columns).fill(1);
+  
+  let frameCount = 0;
+  function draw() {
+    if (!document.getElementById('matrixSuccess')?.classList.contains('active')) return;
+    
+    ctx.fillStyle = 'rgba(0,0,0,0.06)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.fillStyle = '#00ff41';
+    ctx.font = fontSize + 'px monospace';
+    ctx.shadowColor = '#00ff41';
+    ctx.shadowBlur = 10;
+    
+    for (let i = 0; i < drops.length; i++) {
+      const text = chars[Math.floor(Math.random() * chars.length)];
+      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+      
+      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+        drops[i] = 0;
+      }
+      drops[i]++;
+    }
+    
+    requestAnimationFrame(draw);
+  }
+  
+  draw();
+}
+
+/* ===== دالة إغلاق النجاح ===== */
+function closeSuccess() {
+  const success = document.getElementById('matrixSuccess');
+  if (success) success.classList.remove('active');
+  renderOffenseMissions();
+  renderDefenseMissions();
+}
+
+/* ===== دالة عرض الفشل ===== */
+function showMissionFail(mission, matched, total) {
+  const roasts = [
+    '😂 امسح الهباب اللي أنت عامله ده يا عم!',
+    '💀 هتفضحنا قدام الهاكرز كده؟',
+    '🤦‍♂️ أنت فاكر ده اختراق؟ ده لعب عيال!',
+    '😭 يا ابني لو الهاكرز شافوك كده هيبكوا عليك',
+    '🔥 روح اتعلم الأساسيات الأول يا بطل',
+    '🚮 الأوامر دي بتاعة واحد بيتعلم ABC',
+    '😹 يا راجل ده أنت لو حاولت تخترق ميكروويف هيفشل',
+    '👎 لأ يا عم ده مش اختراق ده تمثيل كوميدي'
+  ];
+  
+  const randomRoast = roasts[Math.floor(Math.random() * roasts.length)];
+  
+  let fail = document.getElementById('missionFail');
+  if (!fail) {
+    fail = document.createElement('div');
+    fail.id = 'missionFail';
+    fail.className = 'fail-screen';
+    document.body.appendChild(fail);
+    
+    const style = document.createElement('style');
+    style.textContent = `
+      .fail-screen {
+        position: fixed;
+        inset: 0;
+        background: rgba(20,0,5,0.95);
+        backdrop-filter: blur(10px);
+        z-index: 2000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+      .fail-screen.active { display: flex; }
+      
+      .fail-content {
+        background: linear-gradient(135deg,#1a0005,#2a000a);
+        border: 2px solid #ff0044;
+        border-radius: 20px;
+        padding: 40px 30px;
+        max-width: 600px;
+        text-align: center;
+        animation: shake 0.5s ease;
+        box-shadow: 0 0 60px rgba(255,0,68,0.5);
+      }
+      @keyframes shake {
+        0%,100%{transform:translateX(0)}
+        25%{transform:translateX(-10px)}
+        75%{transform:translateX(10px)}
+      }
+      
+      .fail-content .fail-icon {
+        font-size: 4rem;
+        margin-bottom: 15px;
+      }
+      
+      .fail-content h2 {
+        color: #ff0044;
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+        font-family: 'Share Tech Mono', monospace;
+      }
+      
+      .fail-content .roast {
+        background: rgba(0,0,0,0.5);
+        border-right: 4px solid #ff0044;
+        padding: 18px;
+        border-radius: 10px;
+        margin: 20px 0;
+        text-align: right;
+        color: #ffaa00;
+        font-size: 1rem;
+        line-height: 1.8;
+        font-weight: 700;
+      }
+      
+      .fail-content .learn-hint {
+        color: #9a9ab0;
+        font-size: 0.9rem;
+        line-height: 1.8;
+        margin-bottom: 20px;
+        text-align: right;
+      }
+      
+      .retry-btn {
+        padding: 15px 40px;
+        background: linear-gradient(135deg,#ff0044,#cc0033);
+        color: #fff;
+        border: none;
+        border-radius: 50px;
+        font-weight: 900;
+        cursor: pointer;
+        font-family: 'Cairo', sans-serif;
+        font-size: 1rem;
+        margin: 10px 5px;
+        transition: all 0.3s;
+      }
+      .retry-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(255,0,68,0.5);
+      }
+      
+      .cancel-btn {
+        padding: 15px 40px;
+        background: transparent;
+        border: 2px solid #9a9ab0;
+        color: #9a9ab0;
+        border-radius: 50px;
+        font-weight: 700;
+        cursor: pointer;
+        font-family: 'Cairo', sans-serif;
+        font-size
 </script>
 </body>
 </html>
