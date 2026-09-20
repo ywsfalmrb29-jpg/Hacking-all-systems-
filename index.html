@@ -1124,4 +1124,111 @@ function showAdvancedTips(){
       💡 اتعلم Python للأتمتة
     </div>`;
   } else if(level<3000){
-    tips=`<div style="text-align:right;li
+    tips=`<div style="text-align:right;line-height:2">
+      👨‍💻 <b>هاكر مبتدئ:</b><br><br>
+      💡 اتعلم Burp Suite<br>
+      💡 جرب Bug Bounty<br>
+      💡 اتعلم Web Exploitation<br>
+      💡 اتعمق في Cryptography<br>
+      💡 ابدأ Reverse Engineering
+    </div>`;
+  } else if(level<5000){
+    tips=`<div style="text-align:right;line-height:2">
+      🕵️ <b>هاكر محترف:</b><br><br>
+      💡 اتعلم Exploit Development<br>
+      💡 اتعمق في Binary Exploitation<br>
+      💡 اشتغل على CVEs<br>
+      💡 اتعلم Malware Analysis<br>
+      💡 شارك في CTFs
+    </div>`;
+  } else if(level<8000){
+    tips=`<div style="text-align:right;line-height:2">
+      🔥 <b>هاكر خبير:</b><br><br>
+      💡 اكتشف Zero-days<br>
+      💡 اكتب Exploits<br>
+      💡 اتعلم Advanced Persistence<br>
+      💡 قود فريق Red Team<br>
+      💡 درّب المبتدئين
+    </div>`;
+  } else {
+    tips=`<div style="text-align:right;line-height:2">
+      👑 <b>إدمان المدمر:</b><br><br>
+      💀 أنت في القمة<br>
+      💀 ساعد المبتدئين<br>
+      💀 ابحث عن ثغرات جديدة<br>
+      💀 كوّن فريق Bug Bounty<br>
+      💀 أنت أسطورة!
+    </div>`;
+  }
+  const modal=document.createElement('div');
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:2500;display:flex;justify-content:center;align-items:center;padding:20px;animation:fadeIn 0.3s';
+  modal.innerHTML=`
+    <div style="background:linear-gradient(135deg,#0a0a15,#12121f);border:2px solid #d4af37;border-radius:20px;padding:35px;max-width:500px;width:100%;box-shadow:0 0 60px rgba(212,175,55,0.4);animation:modalSlide 0.4s">
+      <h2 style="color:#d4af37;margin-bottom:20px;font-family:'Share Tech Mono',monospace;text-align:center">💡 نصائح ذكية</h2>
+      <div style="color:#e8e8f0;font-size:0.95rem">${tips}</div>
+      <button onclick="this.closest('div').parentElement.remove()" style="display:block;margin:20px auto 0;padding:12px 30px;background:linear-gradient(135deg,#d4af37,#f4d47c);color:#000;border:none;border-radius:50px;font-weight:900;cursor:pointer;font-family:'Cairo',sans-serif;font-size:1rem">تمام ✓</button>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click',(e)=>{if(e.target===modal)modal.remove()});
+}
+
+/* ===== الشهادة ===== */
+function checkCertificate(){
+  if(GAME_STATE.completedMissions.length>=20){
+    showCertificate();
+  }
+}
+
+function showCertificate(){
+  const modal=document.createElement('div');
+  modal.id='certificateModal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:3000;display:flex;justify-content:center;align-items:center;padding:20px;overflow-y:auto';
+  modal.innerHTML=`
+    <div style="background:linear-gradient(135deg,#0a0a15,#12121f);border:3px solid #d4af37;border-radius:20px;padding:40px 30px;max-width:600px;width:100%;text-align:center;box-shadow:0 0 80px rgba(212,175,55,0.6);position:relative">
+      <div style="font-size:3rem;margin-bottom:15px">🏆</div>
+      <h1 style="color:#d4af37;font-size:1.8rem;margin-bottom:20px;font-family:'Share Tech Mono',monospace;text-shadow:0 0 20px #d4af37">شهادة الاحتراف</h1>
+      <div style="height:2px;background:linear-gradient(90deg,transparent,#d4af37,transparent);margin:20px 0"></div>
+      <p style="color:#e8e8f0;margin-bottom:15px">يُشهد بأن</p>
+      <h2 style="color:#00ff41;font-size:1.5rem;margin-bottom:20px;font-family:'Share Tech Mono',monospace">HACKER PRO</h2>
+      <p style="color:#e8e8f0;margin-bottom:20px">قد أكمل بنجاح:</p>
+      <div style="text-align:right;max-width:350px;margin:0 auto 20px;color:#00ff41;font-weight:700;line-height:2">
+        ✅ 10 مهام اختراق<br>
+        ✅ 10 تحديات حماية<br>
+        ✅ ${GAME_STATE.points.toLocaleString()} نقطة<br>
+        ✅ المستوى: 👑 إدمان المدمر
+      </div>
+      <div style="height:2px;background:linear-gradient(90deg,transparent,#d4af37,transparent);margin:20px 0"></div>
+      <div style="font-size:2.5rem;margin:15px 0">🐈</div>
+      <p style="color:#d4af37;font-size:1.2rem;font-weight:900;margin-bottom:10px">خد هديتك يا قلبي ❤️</p>
+      <div style="height:2px;background:linear-gradient(90deg,transparent,#d4af37,transparent);margin:20px 0"></div>
+      <p style="color:#c084fc;margin-bottom:10px">📞 تواصل خاص مع المدمر:</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:20px">
+        <a href="https://t.me/youssef7_HAKER" target="_blank" style="padding:10px 20px;background:linear-gradient(135deg,#0088cc,#33aadd);color:#fff;border-radius:50px;text-decoration:none;font-weight:700;font-size:0.9rem">✈️ تليجرام</a>
+        <a href="https://www.youtube.com/@Edman_haking-i4f" target="_blank" style="padding:10px 20px;background:linear-gradient(135deg,#ff0000,#cc0000);color:#fff;border-radius:50px;text-decoration:none;font-weight:700;font-size:0.9rem">▶️ يوتيوب</a>
+      </div>
+      <div style="height:2px;background:linear-gradient(90deg,transparent,#d4af37,transparent);margin:20px 0"></div>
+      <p style="color:#d4af37;font-size:1.1rem;font-weight:900;font-family:'Share Tech Mono',monospace">👑 Edman Haking 👑</p>
+      <p style="color:#9a9ab0;font-size:0.8rem;margin-top:10px">${new Date().toLocaleDateString('ar-EG')}</p>
+      <button onclick="document.getElementById('certificateModal').remove()" style="margin-top:25px;padding:12px 30px;background:linear-gradient(135deg,#d4af37,#f4d47c);color:#000;border:none;border-radius:50px;font-weight:900;cursor:pointer;font-family:'Cairo',sans-serif;font-size:1rem">🎉 تمام</button>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+/* ===== ربط زر النصائح ===== */
+window.showTips=showAdvancedTips;
+
+/* ===== إتاحة الدوال ===== */
+window.showMatrixSuccess=showMatrixSuccess;
+window.showMissionFail=showMissionFail;
+window.closeSuccess=closeSuccess;
+window.retryMission=retryMission;
+window.closeFail=closeFail;
+window.initCatHelper=initCatHelper;
+window.showCertificate=showCertificate;
+window.checkCertificate=checkCertificate;
+
+/* ===== تشغيل القط ===== */
+setTimeout(initCatHelper, 7000);
+</script>
+</body>
+</html>
